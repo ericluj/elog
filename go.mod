@@ -1,4 +1,4 @@
-module elog
+module github.com/ericluj/elog
 
 go 1.17
 
