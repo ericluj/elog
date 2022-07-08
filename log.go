@@ -1,6 +1,10 @@
 package log
 
 import (
+	"fmt"
+	"path/filepath"
+	"runtime"
+
 	"github.com/sirupsen/logrus"
 )
 
@@ -13,16 +17,10 @@ type Log struct {
 
 func NewLog() *Log {
 	logger := logrus.New()
-	// logger.SetReportCaller(true)
 	logger.SetFormatter(&logrus.TextFormatter{
 		DisableColors:   true,
 		FullTimestamp:   true,
 		TimestampFormat: "2006-01-02 15:03:04",
-		// CallerPrettyfier: func(frame *runtime.Frame) (function string, file string) {
-		// 	//处理文件名
-		// 	fileName := path.Base(frame.File)
-		// 	return frame.Function, fileName
-		// },
 	})
 
 	return &Log{
@@ -31,11 +29,11 @@ func NewLog() *Log {
 	}
 }
 
-func (l *Log) Infof(format string, args ...interface{}) {
+func (l *Log) infof(format string, args ...interface{}) {
 	l.Entry.WithField("call", stack(l.depth+1)).Infof(format, args...)
 }
 
-func (l *Log) Fatalf(format string, args ...interface{}) {
+func (l *Log) fatalf(format string, args ...interface{}) {
 	l.Entry.WithField("call", stack(l.depth+1)).Fatalf(format, args...)
 }
 
@@ -48,9 +46,17 @@ func Fields(fields map[string]interface{}) *Log {
 }
 
 func Infof(layout string, args ...interface{}) {
-	log.Logger.Infof(layout, args...)
+	log.infof(layout, args...)
 }
 
 func Fatalf(layout string, args ...interface{}) {
-	log.Logger.Fatalf(layout, args...)
+	log.fatalf(layout, args...)
+}
+
+func stack(depth int) string {
+	pc, file, n, ok := runtime.Caller(2 + depth)
+	if !ok {
+		return ""
+	}
+	return fmt.Sprintf("%v:%v:%v", filepath.Base(file), n, runtime.FuncForPC(pc).Name())
 }
