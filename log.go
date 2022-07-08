@@ -1,9 +1,6 @@
 package log
 
 import (
-	"path"
-	"runtime"
-
 	"github.com/sirupsen/logrus"
 )
 
@@ -11,33 +8,35 @@ var log = NewLog()
 
 type Log struct {
 	*logrus.Entry
+	depth int
 }
 
 func NewLog() *Log {
 	logger := logrus.New()
-	logger.SetReportCaller(true)
+	// logger.SetReportCaller(true)
 	logger.SetFormatter(&logrus.TextFormatter{
 		DisableColors:   true,
 		FullTimestamp:   true,
 		TimestampFormat: "2006-01-02 15:03:04",
-		CallerPrettyfier: func(frame *runtime.Frame) (function string, file string) {
-			//处理文件名
-			fileName := path.Base(frame.File)
-			return frame.Function, fileName
-		},
+		// CallerPrettyfier: func(frame *runtime.Frame) (function string, file string) {
+		// 	//处理文件名
+		// 	fileName := path.Base(frame.File)
+		// 	return frame.Function, fileName
+		// },
 	})
 
 	return &Log{
 		Entry: logrus.NewEntry(logger),
+		depth: 0,
 	}
 }
 
 func (l *Log) Infof(format string, args ...interface{}) {
-	l.Entry.Infof(format, args...)
+	l.Entry.WithField("call", stack(l.depth+1)).Infof(format, args...)
 }
 
 func (l *Log) Fatalf(format string, args ...interface{}) {
-	l.Entry.Fatalf(format, args...)
+	l.Entry.WithField("call", stack(l.depth+1)).Fatalf(format, args...)
 }
 
 func Field(key string, val interface{}) *Log {
