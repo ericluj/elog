@@ -20,7 +20,7 @@ func NewLog() *Log {
 	logger.SetFormatter(&logrus.TextFormatter{
 		DisableColors:   true,
 		FullTimestamp:   true,
-		TimestampFormat: "2006-01-02 15:03:04",
+		TimestampFormat: "2006-01-02 15:04:05",
 	})
 
 	return &Log{
