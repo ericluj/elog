@@ -2,6 +2,7 @@ package log
 
 import (
 	"fmt"
+	"os"
 	"path/filepath"
 	"runtime"
 
@@ -18,10 +19,11 @@ type Log struct {
 func NewLog() *Log {
 	logger := logrus.New()
 	logger.SetFormatter(&logrus.TextFormatter{
-		DisableColors:   true,
+		DisableColors:   false,
 		FullTimestamp:   true,
 		TimestampFormat: "2006-01-02 15:04:05",
 	})
+	logger.SetOutput(os.Stdout)
 
 	return &Log{
 		Entry: logrus.NewEntry(logger),
